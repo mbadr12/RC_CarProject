@@ -305,7 +305,7 @@ ErrorState_t GPTM_SetMatchValue(GPTM_Config_t* Copy_Config, TimerValue_t Copy_Va
             else
             {
                 GPTM_Arr[Copy_Config->TimerBlock]->xMATCHR[Copy_Config->TimerChannel]=(u32)Copy_Value;
-                GPTM_Arr[Copy_Config->TimerBlock]->TxPMR=Copy_MatchPrescaler;
+                GPTM_Arr[Copy_Config->TimerBlock]->TxPMR[Copy_Config->TimerChannel]=Copy_MatchPrescaler;
             }
         }
     }
