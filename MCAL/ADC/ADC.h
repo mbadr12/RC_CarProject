@@ -2,8 +2,8 @@
 #define MCAL_ADC_DRIVERS_ADC_H_
 
 /* Includes */
-
-#include <UTILS/Register_Map.h>
+#include "../../LIB/Std_Types.h"
+#include "../../LIB/TM4C123xx.h"
 #include <stdint.h>
 
 /* Defines */

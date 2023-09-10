@@ -14,9 +14,9 @@
 /**********************************************************************************************************************
  *  INCLUDES
  *********************************************************************************************************************/
-#include "Std_Types.h"
-#include "TM4C123xx.h"
-#include "Bit_Math.h"
+#include "../../LIB/Std_Types.h"
+#include "../../LIB/TM4C123xx.h"
+#include "../../LIB/Bit_Math.h"
 
 #include "GPTM.h"
 
@@ -84,6 +84,7 @@ ErrorState_t GPTM_Init(GPTM_Config_t* Copy_Config, TimersNum_t Copy_Number)
             }
         }
     }
+    SET_BIT((GPTM_Arr[GPTM_WTIMER5]->CTL),1);
     return Local_ErrorState;
 }
 
@@ -160,8 +161,8 @@ ErrorState_t GPTM_SetEventTrigger(GPTM_BlockNum_t Copy_TimerNum, GPTM_Channel_t 
     }
     else
     {
-        GPTM_Arr[Copy_TimerNum]->CFG &= ~(0b11<<GPTM_SET_EVENT);
-        GPTM_Arr[Copy_TimerNum]->CFG |= Copy_Trigger<<GPTM_SET_EVENT;
+        GPTM_Arr[Copy_TimerNum]->CTL &= ~(0b11<<GPTM_SET_EVENT);
+        GPTM_Arr[Copy_TimerNum]->CTL |= Copy_Trigger<<GPTM_SET_EVENT;
     }
     return Local_ErrorState;
 }

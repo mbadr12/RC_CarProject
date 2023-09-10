@@ -165,6 +165,15 @@ ErrorState_t RCC_PeripheralSWReset(RCC_Prph_t Copy_Peripheral);
  **************************************************************************************************************************************/
 void RCC_ConfigureClock(u8 Clock_Freq, u8 PWM_Config);
 
+#define NO_PWM                          0U
+#define RCC_USE_PWM                     0x00010000UL /* USEPWMDIV */
+#define RCC_PWMDIV_2                    0x00000000UL /* PWMDIV /2 */
+#define RCC_PWMDIV_4                    0x00002000UL /* PWMDIV /4 */
+#define RCC_PWMDIV_8                    0x00004000UL /* PWMDIV /8 */
+#define RCC_PWMDIV_16                   0x00006000UL /* PWMDIV /16 */
+#define RCC_PWMDIV_32                   0x00008000UL /* PWMDIV /32 */
+#define RCC_PWMDIV_64                   0x0000E000UL /* PWMDIV /64 */
+
 #endif  /* RCC_INTERFACE_H */
 
 /**********************************************************************************************************************

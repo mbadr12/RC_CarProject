@@ -14,10 +14,10 @@
 /**********************************************************************************************************************
  *  INCLUDES
  *********************************************************************************************************************/
-#include "Std_Types.h"
-#include "Bit_Math.h"
-
-#include "GPIO.h"
+#include "../../LIB/Std_Types.h"
+#include "../../LIB/Bit_Math.h"
+#include "../../MCAL/RCC/RCC.h"
+#include "../../MCAL/GPIO/GPIO.h"
 
 #include "LCD.h"
 
@@ -135,6 +135,7 @@ ErrorState_t LCD_Init(LCD_Config_t* Copy_Config)
             LCD_Config[Local_Counter].PinPull=GPIO_PIN_FLOATING;
             LCD_Config[Local_Counter].PinState=GPIO_PIN_PUSHPULL;
             LCD_Config[Local_Counter].OutputCurrent=GPIO_2MA_DRIVE;
+            RCC_SetPrephralClockState((RCC_Prph_t)(RCC_GPIOA+Copy_Config->DataPinsPorts[Local_Counter]), RCC_CLK_ENABLE);
         }
         for(Local_Counter=0 ;Local_Counter<3;Local_Counter++)
         {
@@ -145,6 +146,7 @@ ErrorState_t LCD_Init(LCD_Config_t* Copy_Config)
             LCD_Config[Local_Counter+Local_Max].PinPull=GPIO_PIN_FLOATING;
             LCD_Config[Local_Counter+Local_Max].PinState=GPIO_PIN_PUSHPULL;
             LCD_Config[Local_Counter+Local_Max].OutputCurrent=GPIO_2MA_DRIVE;
+            RCC_SetPrephralClockState((RCC_Prph_t)(RCC_GPIOA+Copy_Config->ControlPinsPorts[Local_Counter]), RCC_CLK_ENABLE);
         }
         Local_ErrorState=GPIO_Init(LCD_Config, Local_Max+3);
         /*set the font size*/

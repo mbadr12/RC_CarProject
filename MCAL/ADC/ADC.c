@@ -1,4 +1,4 @@
-#include <MCAL/ADC_Drivers/ADC.h>
+#include "ADC.h"
 
 void ADC_SequencerInit(ADC_RegDef_t *ADCx,
                        ADC_Sequencer_InitTypeDef *Sequencer_Config)

@@ -12,7 +12,8 @@
  *********************************************************************************************************************/
  #ifndef TM4C123XX_H
  #define TM4C123XX_H
- 
+
+#include <stdint.h>
 /******************************************** SC Peripheral Definition  **********************************************/
 
 #define SYSCTL_BASE_ADDRESS                         0x400FE000UL
@@ -187,10 +188,10 @@ typedef struct
 #define GPTM5_BASE_ADDRESS					0x40035000UL
 #define WGPTM0_BASE_ADDRESS					0x40036000UL
 #define WGPTM1_BASE_ADDRESS					0x40037000UL
-#define WGPTM2_BASE_ADDRESS					0x4003c000UL
-#define WGPTM3_BASE_ADDRESS					0x4003d000UL
-#define WGPTM4_BASE_ADDRESS					0x4003E000UL
-#define WGPTM5_BASE_ADDRESS					0x4003F000UL
+#define WGPTM2_BASE_ADDRESS					0x4004c000UL
+#define WGPTM3_BASE_ADDRESS					0x4004d000UL
+#define WGPTM4_BASE_ADDRESS					0x4004E000UL
+#define WGPTM5_BASE_ADDRESS					0x4004F000UL
 
 /******************************************** GPTM Registers Definition **********************************************/
 typedef struct
