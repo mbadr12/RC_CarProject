@@ -58,21 +58,12 @@ ErrorState_t GPIO_Init(const GPIO_Config_t* Copy_Config,u8 Copy_PinNum)
             }
             else
             {
-                /*Make sure that port clock is enabled*/
-                if(GET_BIT(SYSCTL_RCGCGPIO,GPIO_Config.Port)==0)
-                {
-                    SET_BIT(SYSCTL_RCGCGPIO,GPIO_Config.Port);
-                }
-                else
-                {
-                    /* For MISRA */
-                }
-                if(GPIO->LOCK==1)
+                if((GPIO->LOCK==1) && (GPIO_Config.Port!=GPIO_PORTC))
                 {
                     /*Unlock the port*/
                     GPIO->LOCK=GPIO_UNLOCK;
                     /*Unlock commit for pins*/
-                    GPIO->CR=GPIO_COMMIT;
+                    SET_BIT(GPIO->CR,GPIO_Config.Pin);
                 }
                 else
                 {
@@ -85,7 +76,7 @@ ErrorState_t GPIO_Init(const GPIO_Config_t* Copy_Config,u8 Copy_PinNum)
                 {
                 case GPIO_PIN_DIGITAL: SET_BIT(GPIO->DEN,GPIO_Config.Pin); break;
                 case GPIO_PIN_ALTFUNC: SET_BIT(GPIO->AFSEL,GPIO_Config.Pin); SET_BIT(GPIO->DEN,GPIO_Config.Pin);
-                GPIO->PCTL&=(~(0b1111)<<(4*GPIO_Config.Pin)); GPIO->PCTL|=(GPIO_Config.AltFuncNum)<<(4*GPIO_Config.Pin); break;
+                GPIO->PCTL&=(~((0b1111)<<(4*GPIO_Config.Pin))); GPIO->PCTL|=((GPIO_Config.AltFuncNum)<<(4*GPIO_Config.Pin)); break;
                 case GPIO_PIN_ANALOG: SET_BIT(GPIO->AMSEL,GPIO_Config.Pin); break;
                 default: Local_ErrorState=E_WRONG_OPTION; break;
                 }

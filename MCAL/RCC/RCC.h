@@ -151,7 +151,20 @@ ErrorState_t RCC_IsPeripheralPresent(RCC_Prph_t Copy_Peripheral, bool* Copy_IsPe
  * \Return value:   : ErrorState_t
  **************************************************************************************************************************************/
 ErrorState_t RCC_PeripheralSWReset(RCC_Prph_t Copy_Peripheral);
- 
+
+/**************************************************************************************************************************************
+ * \Syntax          : void RCC_ConfigureClock(u8 Clock_Freq, u8 PWM_Config)
+ * \Description     : Set the System Clock and PWM clock Configuration
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Clock_Freq   		The System Frequency
+ *                    PWM_Config   		The PWM Configuration
+ * \Parameters (out): None
+ * \Return value:   : void
+ **************************************************************************************************************************************/
+void RCC_ConfigureClock(u8 Clock_Freq, u8 PWM_Config);
+
 #endif  /* RCC_INTERFACE_H */
 
 /**********************************************************************************************************************

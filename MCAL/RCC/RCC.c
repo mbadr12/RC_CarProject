@@ -46,7 +46,7 @@ ErrorState_t RCC_SetPrephralClockState(RCC_Prph_t Copy_Peripheral, RCC_PrphClkSt
     }
     else
     {
-        INSERT_BIT(SYSCRL->RCGC[Local_RegNum],Local_BitNum,Copy_ClockState);
+        INSERT_BIT(SYSCTL->RCGC[Local_RegNum],Local_BitNum,Copy_ClockState);
     }
     return Local_ErrorState;
 }
@@ -73,7 +73,7 @@ ErrorState_t RCC_SetPrephralClockStateSleepMode(RCC_Prph_t Copy_Peripheral, RCC_
     }
     else
     {
-        INSERT_BIT(SYSCRL->SCGC[Local_RegNum],Local_BitNum,Copy_ClockState);
+        INSERT_BIT(SYSCTL->SCGC[Local_RegNum],Local_BitNum,Copy_ClockState);
     }
     return Local_ErrorState;
 }
@@ -100,7 +100,7 @@ ErrorState_t RCC_SetPrephralClockStateDeepSleepMode(RCC_Prph_t Copy_Peripheral, 
     }
     else
     {
-        INSERT_BIT(SYSCRL->DCGC[Local_RegNum],Local_BitNum,Copy_ClockState);
+        INSERT_BIT(SYSCTL->DCGC[Local_RegNum],Local_BitNum,Copy_ClockState);
     }
     return Local_ErrorState;
 }
@@ -126,7 +126,7 @@ ErrorState_t RCC_IsPeripheralPresent(RCC_Prph_t Copy_Peripheral, bool* Copy_IsPe
     }
     else
     {
-        *Copy_IsPersent=(bool)GET_BIT(SYSCRL->PP[Local_RegNum],Local_BitNum);
+        *Copy_IsPersent=(bool)GET_BIT(SYSCTL->PP[Local_RegNum],Local_BitNum);
     }
     return Local_ErrorState;
 }
@@ -153,11 +153,69 @@ ErrorState_t RCC_PeripheralSWReset(RCC_Prph_t Copy_Peripheral)
         }
         else
         {
-            SET_BIT(SYSCRL->SR[Local_RegNum],Local_BitNum);
-            CLR_BIT(SYSCRL->SR[Local_RegNum],Local_BitNum);
+            SET_BIT(SYSCTL->SR[Local_RegNum],Local_BitNum);
+            CLR_BIT(SYSCTL->SR[Local_RegNum],Local_BitNum);
         }
         return Local_ErrorState;
     }
+}
+
+/**************************************************************************************************************************************
+ * \Syntax          : void RCC_ConfigureClock(u8 Clock_Freq, u8 PWM_Config)
+ * \Description     : Set the System Clock and PWM clock Configuration
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Clock_Freq   		The System Frequency
+ *                    PWM_Config   		The PWM Configuration
+ * \Parameters (out): None
+ * \Return value:   : void
+ **************************************************************************************************************************************/
+void RCC_ConfigureClock(u8 Clock_Freq, u8 PWM_Config)
+{
+    SYSCTL->RCC &= ~(1UL << 22); /* Clear USESYSDIV bit */
+    SYSCTL->RCC &= ~(0xFUL << 6); /* Clear XTAL bits */
+    SYSCTL->RCC |= (0x15UL << 6); /* XTAL 16 MHz */
+    SYSCTL->RCC &= ~(1UL << 0); /* Enable MOSC */
+    while ((SYSCTL->RIS & (1U << 8)) == 0U)
+        ; /* Wait for MOSC to stabilize */
+    SYSCTL->MISC |= (1UL << 8); /* Clear flag */
+    SYSCTL->RCC2 |= (1UL << 31); /* Set USERCC2 bit */
+    SYSCTL->RCC2 |= (1UL << 11); /* Set BYPASS2 bit */
+    SYSCTL->RCC2 &= ~(3UL << 4); /* Use MOSC as source */
+    SYSCTL->RCC2 &= ~(0x3FUL << 23); /* Clear SYSDIV2 bits */
+    if (Clock_Freq > 16U)
+    {
+        SYSCTL->RCC2 |= (1UL << 30); /* PLL 400 MHz */
+        SYSCTL->RCC2 &= ~(1UL << 13); /* Power up PLL */
+        u32 divisor = 400U / Clock_Freq; /* Calculate divisor */
+        while (divisor < 3U)
+            ; /* If divisor less than 3 then infinite loop */
+        SYSCTL->RCC2 |= (((divisor - 1UL) / 2UL) << 23); /* Set divisor in SYSDIV2 */
+        SYSCTL->RCC2 &= (~1U << 22); /* Clear SYSDIV2LSB */
+        SYSCTL->RCC2 |= (((divisor ^ 0x01UL) & 0x1UL) << 22); /* Set SYSDIV2LSB if divisor is even */
+        SYSCTL->RCC |= (1UL << 22); /* Set USESYSDIV bit */
+        while ((SYSCTL->RIS & (1UL << 6)) == 0U)
+            ; /* Wait for PLL to stabilize */
+        SYSCTL->MISC |= (1UL << 6); /* Clear flag */
+        SYSCTL->RCC2 &= ~(1UL << 11); /* Clear BYPASS2 bit */
+    }
+    else
+    {
+        u32 divisor = 16U / Clock_Freq; /* Calculate divisor */
+        while (divisor < 3U)
+            ; /* If divisor less than 3 then infinite loop */
+        SYSCTL->RCC2 |= ((divisor - 1U) << 23); /* Set divisor in SYSDIV2 */
+        SYSCTL->RCC |= (1UL << 22); /* Set USESYSDIV bit */
+    }
+    if ((PWM_Config & RCC_USE_PWM) == RCC_USE_PWM)
+    {
+        SYSCTL->RCC |= RCC_USE_PWM;
+        SYSCTL->RCC &= ~RCC_PWMDIV_64;
+        SYSCTL->RCC |= PWM_Config & ~RCC_USE_PWM;
+    }
+    else
+        ;
 }
 
 /**********************************************************************************************************************
