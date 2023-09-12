@@ -299,7 +299,7 @@ void CAR_Init(void)
 {
     EXTI_Config_t Local_Switch1={.Port=EXTI_PORTF, .Pin=EXTI_PIN0,.TrigTye=EXTI_RAISING_EDGE};
     EXTI_Config_t Local_Switch2={.Port=EXTI_PORTF, .Pin=EXTI_PIN4,.TrigTye=EXTI_RAISING_EDGE};
-    /*Initialize the system*/
+    /*Initialize the system Hardware*/
     LCD_Init(&APP_LCD);
     Ultra_Sonic_init();
     LDR_Init();
@@ -315,16 +315,27 @@ void CAR_Init(void)
     LCD_SendString(&APP_LCD, "T ");
     Switch_IntConfig(&Local_Switch1, Switch1_Notification);
     Switch_IntConfig(&Local_Switch2, Switch2_Notification);
+    /*Create ultrasonic task to get reading every 100 MS*/
     Create_Task(UltraSonic_Task, 2, 0, 0);
+    /*Create LDR difference Display task to be Displayed every 150 MS*/
     Create_Task(LCD_LDRDisplay, 3, 1, 7);
+    /*Create Time elapsed Display task to be Displayed every 1 S*/
     Create_Task(LCD_TimeDiplay, 20, 0, 8);
-    Create_Task(LCD_Distancedisplay, 2, 0, 6);
+    /*Create Distance Display task to be Displayed every 100 MS*/
+    Create_Task(LCD_Distancedisplay, 2, 1, 6);
+    /*Create Avoid obstacles task to be executed every 100 MS*/
     Create_Task(avoid_obstacles, 2, 0, 1);
+    /*Create LDR swing task to be executed every 150 MS*/
     Create_Task(ldr_swing_car, 3, 0, 5);
-    Create_Task(Temperature_Task, 60, 2, 9);
+    /*Create Temperature Task to be executed every 4 S*/
+    Create_Task(Temperature_Task, 80, 2, 9);
+    /*Create Car start Task to be executed every 50 MS*/
     Create_Task(CarStart_Task, 1, 0, 2);
+    /*Create Car Stop Task to be executed every 50 MS*/
     Create_Task(CarStop_Task, 1, 0, 3);
+    /*Create Watch Task to calculate the elapsed time every 1 S*/
     Create_Task(Watch_Task, 20, 0, 4);
+    /*Start scheduler*/
     Tasks_Sceduler();
 }
 
