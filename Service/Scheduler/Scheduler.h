@@ -19,9 +19,9 @@
 
 /*Set the Tick Time in Microsecond up to 4192000*/
 
-#define OS_TICK_US      10000
+#define OS_TICK_US      50000
 
-#define MAX_TASK_NUM    1
+#define NUM_OF_TASKS    10
 
 /**********************************************************************************************************************
  *  GLOBAL DATA TYPES AND STRUCTURES

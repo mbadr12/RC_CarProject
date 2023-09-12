@@ -1,72 +1,73 @@
-#include <MCAL/PWM_Drivers/PWM.h>
+#include "LIB/Std_Types.h"
+#include "MCAL/PWM/PWM.h"
 
-void PWM_Init(PWM_RegDef_t *PWMx, PWM_InitTypeDef PWM_Config)
+void PWM_Init(PWM_RegDef_t *PWMx, PWM_InitTypeDef *PWM_Config)
 {
-    switch (PWM_Config.Channel)
+    switch (PWM_Config->Channel)
     {
     case PWM_Channel_0:
         PWMx->_0_CTL = 0; /* Disable Generator */
         PWMx->_0_GENA = 0; /* Clear Generator Controls */
-        PWMx->_0_GENA |= PWM_Config.Channel_Action_Zero;
-        PWMx->_0_GENA |= (PWM_Config.Channel_Action_Load << 2U);
-        PWMx->_0_GENA |= (PWM_Config.Channel_Action_CompADowm << 6U);
-        PWMx->_0_GENA |= (PWM_Config.Channel_Action_CompBDowm << 10U);
+        PWMx->_0_GENA |= PWM_Config->Channel_Action_Zero;
+        PWMx->_0_GENA |= (PWM_Config->Channel_Action_Load << 2U);
+        PWMx->_0_GENA |= (PWM_Config->Channel_Action_CompADowm << 6U);
+        PWMx->_0_GENA |= (PWM_Config->Channel_Action_CompBDowm << 10U);
         break;
     case PWM_Channel_1:
         PWMx->_0_CTL = 0; /* Disable Generator */
         PWMx->_0_GENB = 0; /* Clear Generator Controls */
-        PWMx->_0_GENB |= PWM_Config.Channel_Action_Zero;
-        PWMx->_0_GENB |= (PWM_Config.Channel_Action_Load << 2U);
-        PWMx->_0_GENB |= (PWM_Config.Channel_Action_CompADowm << 6U);
-        PWMx->_0_GENB |= (PWM_Config.Channel_Action_CompBDowm << 10U);
+        PWMx->_0_GENB |= PWM_Config->Channel_Action_Zero;
+        PWMx->_0_GENB |= (PWM_Config->Channel_Action_Load << 2U);
+        PWMx->_0_GENB |= (PWM_Config->Channel_Action_CompADowm << 6U);
+        PWMx->_0_GENB |= (PWM_Config->Channel_Action_CompBDowm << 10U);
         break;
     case PWM_Channel_2:
         PWMx->_1_CTL = 0; /* Disable Generator */
         PWMx->_1_GENA = 0; /* Clear Generator Controls */
-        PWMx->_1_GENA |= PWM_Config.Channel_Action_Zero;
-        PWMx->_1_GENA |= (PWM_Config.Channel_Action_Load << 2U);
-        PWMx->_1_GENA |= (PWM_Config.Channel_Action_CompADowm << 6U);
-        PWMx->_1_GENA |= (PWM_Config.Channel_Action_CompBDowm << 10U);
+        PWMx->_1_GENA |= PWM_Config->Channel_Action_Zero;
+        PWMx->_1_GENA |= (PWM_Config->Channel_Action_Load << 2U);
+        PWMx->_1_GENA |= (PWM_Config->Channel_Action_CompADowm << 6U);
+        PWMx->_1_GENA |= (PWM_Config->Channel_Action_CompBDowm << 10U);
         break;
     case PWM_Channel_3:
         PWMx->_1_CTL = 0; /* Disable Generator */
         PWMx->_1_GENB = 0; /* Clear Generator Controls */
-        PWMx->_1_GENB |= PWM_Config.Channel_Action_Zero;
-        PWMx->_1_GENB |= (PWM_Config.Channel_Action_Load << 2U);
-        PWMx->_1_GENB |= (PWM_Config.Channel_Action_CompADowm << 6U);
-        PWMx->_1_GENB |= (PWM_Config.Channel_Action_CompBDowm << 10U);
+        PWMx->_1_GENB |= PWM_Config->Channel_Action_Zero;
+        PWMx->_1_GENB |= (PWM_Config->Channel_Action_Load << 2U);
+        PWMx->_1_GENB |= (PWM_Config->Channel_Action_CompADowm << 6U);
+        PWMx->_1_GENB |= (PWM_Config->Channel_Action_CompBDowm << 10U);
         break;
     case PWM_Channel_4:
         PWMx->_2_CTL = 0; /* Disable Generator */
         PWMx->_2_GENA = 0; /* Clear Generator Controls */
-        PWMx->_2_GENA |= PWM_Config.Channel_Action_Zero;
-        PWMx->_2_GENA |= (PWM_Config.Channel_Action_Load << 2U);
-        PWMx->_2_GENA |= (PWM_Config.Channel_Action_CompADowm << 6U);
-        PWMx->_2_GENA |= (PWM_Config.Channel_Action_CompBDowm << 10U);
+        PWMx->_2_GENA |= PWM_Config->Channel_Action_Zero;
+        PWMx->_2_GENA |= (PWM_Config->Channel_Action_Load << 2U);
+        PWMx->_2_GENA |= (PWM_Config->Channel_Action_CompADowm << 6U);
+        PWMx->_2_GENA |= (PWM_Config->Channel_Action_CompBDowm << 10U);
         break;
     case PWM_Channel_5:
         PWMx->_2_CTL = 0; /* Disable Generator */
         PWMx->_2_GENB = 0; /* Clear Generator Controls */
-        PWMx->_2_GENB |= PWM_Config.Channel_Action_Zero;
-        PWMx->_2_GENB |= (PWM_Config.Channel_Action_Load << 2U);
-        PWMx->_2_GENB |= (PWM_Config.Channel_Action_CompADowm << 6U);
-        PWMx->_2_GENB |= (PWM_Config.Channel_Action_CompBDowm << 10U);
+        PWMx->_2_GENB |= PWM_Config->Channel_Action_Zero;
+        PWMx->_2_GENB |= (PWM_Config->Channel_Action_Load << 2U);
+        PWMx->_2_GENB |= (PWM_Config->Channel_Action_CompADowm << 6U);
+        PWMx->_2_GENB |= (PWM_Config->Channel_Action_CompBDowm << 10U);
         break;
     case PWM_Channel_6:
         PWMx->_3_CTL = 0; /* Disable Generator */
         PWMx->_3_GENA = 0; /* Clear Generator Controls */
-        PWMx->_3_GENA |= PWM_Config.Channel_Action_Zero;
-        PWMx->_3_GENA |= (PWM_Config.Channel_Action_Load << 2U);
-        PWMx->_3_GENA |= (PWM_Config.Channel_Action_CompADowm << 6U);
-        PWMx->_3_GENA |= (PWM_Config.Channel_Action_CompBDowm << 10U);
+        PWMx->_3_GENA |= PWM_Config->Channel_Action_Zero;
+        PWMx->_3_GENA |= (PWM_Config->Channel_Action_Load << 2U);
+        PWMx->_3_GENA |= (PWM_Config->Channel_Action_CompADowm << 6U);
+        PWMx->_3_GENA |= (PWM_Config->Channel_Action_CompBDowm << 10U);
         break;
     case PWM_Channel_7:
         PWMx->_3_CTL = 0; /* Disable Generator */
         PWMx->_3_GENB = 0; /* Clear Generator Controls */
-        PWMx->_3_GENB |= PWM_Config.Channel_Action_Zero;
-        PWMx->_3_GENB |= (PWM_Config.Channel_Action_Load << 2U);
-        PWMx->_3_GENB |= (PWM_Config.Channel_Action_CompADowm << 6U);
-        PWMx->_3_GENB |= (PWM_Config.Channel_Action_CompBDowm << 10U);
+        PWMx->_3_GENB |= PWM_Config->Channel_Action_Zero;
+        PWMx->_3_GENB |= (PWM_Config->Channel_Action_Load << 2U);
+        PWMx->_3_GENB |= (PWM_Config->Channel_Action_CompADowm << 6U);
+        PWMx->_3_GENB |= (PWM_Config->Channel_Action_CompBDowm << 10U);
         break;
     default:
         break;

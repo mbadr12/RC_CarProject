@@ -79,6 +79,12 @@ typedef enum
 	UNLOCKED
 } Lock_t;
 
+typedef enum
+{
+    FLAG_LOW=0,
+    FLAG_HIGH
+}Flag_State_t;
+
 #endif /* STD_TYPES_H_ */
 
 /**********************************************************************************************************************

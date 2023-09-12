@@ -3,7 +3,7 @@
 
 /* Includes */
 
-#include <UTILS/Register_Map.h>
+#include "LIB/TM4C123xx.h"
 #include <stdint.h>
 
 /* Config Defines */
@@ -40,7 +40,7 @@ typedef struct
 
 /* Function Prototypes */
 
-void PWM_Init(PWM_RegDef_t *PWMx, PWM_InitTypeDef PWM_Config);
+void PWM_Init(PWM_RegDef_t *PWMx, PWM_InitTypeDef *PWM_Config);
 void PWM_Set_Load(PWM_RegDef_t *PWMx, uint8_t Generator, uint16_t Load_Value);
 void PWM_Set_Comp(PWM_RegDef_t *PWMx, uint8_t Channel, uint16_t Comp_Value);
 void PWM_Start(PWM_RegDef_t *PWMx, uint8_t Generator);

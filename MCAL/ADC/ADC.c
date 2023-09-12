@@ -33,10 +33,9 @@ void ADC_SequencerConfig(ADC_RegDef_t *ADCx,
     case ADC_SEQUENCER1:
         ADCx->SSMUX1 = 0U; /* Clear Sequence */
         ADCx->SSCTL1 = 0U; /* Clear Control */
-        for (i = 4U;
-                (i > 0U)
-                        && (((Sequence->Sequence1_Control[4U - i])
-                                & ADC_END_OF_SEQUENCE) == 0U); i--)
+        for (i = 4U; (i > 0U)
+        /*&& (((Sequence->Sequence1_Control[4U - i])
+         & ADC_END_OF_SEQUENCE) == 0U)*/; i--)
         {
             ADCx->SSMUX1 |= (Sequence->Sequence1[4U - i] << ((4U - i) * 4U));
             ADCx->SSCTL1 |= (Sequence->Sequence1_Control[4U - i]
@@ -109,8 +108,12 @@ uint16_t ADC_GetData(ADC_RegDef_t *ADCx, uint8_t Sequencer)
     default:
         break;
     }
-    ADCx->ISC |= (1U << Sequencer); /* Clear Interrupt flag */
     return data;
+}
+
+void ADC_Clear_Interrupt(ADC_RegDef_t *ADCx, uint8_t Sequencer)
+{
+    ADCx->ISC |= (1U << Sequencer); /* Clear Interrupt flag */
 }
 
 void ADC_IntRegister(ADC_RegDef_t *ADCx, uint8_t Sequencer,

@@ -45,22 +45,22 @@
 
 typedef struct
 {
-   uint8_t Sequencer;
-   uint8_t Trigger;
-   uint8_t Oversampling;
+    uint8_t Sequencer;
+    uint8_t Trigger;
+    uint8_t Oversampling;
 } ADC_Sequencer_InitTypeDef;
 
 typedef struct
 {
-   uint8_t Sequencer;
-   uint8_t Sequence0[8];
-   uint8_t Sequence0_Control[8];
-   uint8_t Sequence1[4];
-   uint8_t Sequence1_Control[4];
-   uint8_t Sequence2[4];
-   uint8_t Sequence2_Control[4];
-   uint8_t Sequence3;
-   uint8_t Sequence3_Control;
+    uint8_t Sequencer;
+    uint8_t Sequence0[8];
+    uint8_t Sequence0_Control[8];
+    uint8_t Sequence1[4];
+    uint8_t Sequence1_Control[4];
+    uint8_t Sequence2[4];
+    uint8_t Sequence2_Control[4];
+    uint8_t Sequence3;
+    uint8_t Sequence3_Control;
 } ADC_Sequencer_ConfigTypeDef;
 
 /* Interrupt Pointers */
@@ -73,12 +73,13 @@ void ADC_SequencerInit(ADC_RegDef_t *ADCx,
                        ADC_Sequencer_InitTypeDef *Sequencer_Config);
 void ADC_SequencerConfig(ADC_RegDef_t *ADCx,
                          ADC_Sequencer_ConfigTypeDef *Sequence);
-void ADC_SequenceIntEnable(ADC_RegDef_t *ADCx,uint8_t Sequencer);
-void ADC_SequencerEnable(ADC_RegDef_t *ADCx,uint8_t Sequencer);
-void ADC_SequencerDisable(ADC_RegDef_t *ADCx,uint8_t Sequencer);
-void ADC_StartConversion(ADC_RegDef_t *ADCx,uint8_t Sequencer);
-uint16_t ADC_GetData(ADC_RegDef_t *ADCx,uint8_t Sequencer);
-void ADC_IntRegister(ADC_RegDef_t *ADCx,uint8_t Sequencer,
+void ADC_SequenceIntEnable(ADC_RegDef_t *ADCx, uint8_t Sequencer);
+void ADC_SequencerEnable(ADC_RegDef_t *ADCx, uint8_t Sequencer);
+void ADC_SequencerDisable(ADC_RegDef_t *ADCx, uint8_t Sequencer);
+void ADC_StartConversion(ADC_RegDef_t *ADCx, uint8_t Sequencer);
+uint16_t ADC_GetData(ADC_RegDef_t *ADCx, uint8_t Sequencer);
+void ADC_Clear_Interrupt(ADC_RegDef_t *ADCx, uint8_t Sequencer);
+void ADC_IntRegister(ADC_RegDef_t *ADCx, uint8_t Sequencer,
                      void (*pfnIntHandler)(void));
 
 #endif /* MCAL_ADC_DRIVERS_ADC_H_ */
