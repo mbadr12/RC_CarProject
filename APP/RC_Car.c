@@ -60,35 +60,34 @@ static Flag_State_t APP_LDRFlag=FLAG_LOW;
 static Flag_State_t APP_StopFlag=FLAG_LOW;
 
 /**********************************************************************************************************************
- *  GLOBAL DATA
- *********************************************************************************************************************/
-
-/**********************************************************************************************************************
  *  LOCAL FUNCTIONS
  *********************************************************************************************************************/
 
-
-/**********************************************************************************************************************
- *  GLOBAL FUNCTIONS
- *********************************************************************************************************************/
-
 /******************************************************************************
- * \Syntax          : Std_ReturnType FunctionName(AnyType parameterName)
- * \Description     : Describe this service
+ * \Syntax          : void Ultrasonic_Notifaction(void)
+ * \Description     : Notification Function of the ultrasonic reading completion
  *
  * \Sync\Async      : Synchronous
  * \Reentrancy      : Non Reentrant
- * \Parameters (in) : parameterName   Parameter Description
- * \Parameters (out): parameterName   Parameter Description
- * \Return value:   : Std_ReturnType  E_OK
- *                                    E_NOT_OK
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
  *******************************************************************************/
-
 void Ultrasonic_Notifaction(void)
 {
     APP_UltrasonicGFlag=FLAG_HIGH;
 }
 
+/******************************************************************************
+ * \Syntax          : void Switch1_Notification(void)
+ * \Description     : Notification Function of the Pressing Switch 1
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
 void Switch1_Notification(void)
 {
     /*check if the other button Was pressed or not*/
@@ -114,6 +113,16 @@ void Switch1_Notification(void)
     }
 }
 
+/******************************************************************************
+ * \Syntax          : void Switch2_Notification(void)
+ * \Description     : Notification Function of the Pressing Switch 2
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
 void Switch2_Notification(void)
 {
     /*check if the other button Was pressed or not*/
@@ -138,6 +147,139 @@ void Switch2_Notification(void)
     }
 }
 
+/**********************************************************************************************************************
+ *  GLOBAL FUNCTIONS
+ *********************************************************************************************************************/
+
+/******************************************************************************
+ * \Syntax          : void CAR_Init(void)
+ * \Description     : Initialization of hardware and creation of tasks
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
+void CAR_Init(void)
+{
+    EXTI_Config_t Local_Switch1={.Port=EXTI_PORTF, .Pin=EXTI_PIN0,.TrigTye=EXTI_RAISING_EDGE};
+    EXTI_Config_t Local_Switch2={.Port=EXTI_PORTF, .Pin=EXTI_PIN4,.TrigTye=EXTI_RAISING_EDGE};
+    /*Initialize the system Hardware*/
+    LCD_Init(&APP_LCD);
+    Ultra_Sonic_init();
+    LDR_Init();
+    Temperature_Init();
+    Motor_Init();
+    Switch_Init(GPIO_PORTF, GPIO_PIN0, GPIO_PIN_PULLUP);
+    Switch_Init(GPIO_PORTF, GPIO_PIN4, GPIO_PIN_PULLUP);
+    LCD_SendString(&APP_LCD, "Temp ");
+    LCD_GoToXY(&APP_LCD, 7, 0);
+    LCD_SendChar(&APP_LCD, 248);
+    LCD_SendChar(&APP_LCD, 'C');
+    LCD_GoToXY(&APP_LCD, 10, 0);
+    LCD_SendString(&APP_LCD, "T ");
+    Switch_IntConfig(&Local_Switch1, Switch1_Notification);
+    Switch_IntConfig(&Local_Switch2, Switch2_Notification);
+    ultrasonic_distance(&APP_Distance, Ultrasonic_Notifaction);
+    /*Create ultrasonic task to get reading every 100 MS*/
+    Create_Task(UltraSonic_Task, 2, 0, 0);
+    /*Create Avoid obstacles task to be executed every 100 MS*/
+    Create_Task(avoid_obstacles, 2, 0, 1);
+    /*Create Car start Task to be executed every 50 MS*/
+    Create_Task(CarStart_Task, 1, 0, 2);
+    /*Create Car Stop Task to be executed every 50 MS*/
+    Create_Task(CarStop_Task, 1, 0, 3);
+    /*Create Watch Task to calculate the elapsed time every 1 S*/
+    Create_Task(Watch_Task, 20, 0, 4);
+    /*Create LDR swing task to be executed every 150 MS*/
+    Create_Task(ldr_swing_car, 3, 0, 5);
+    /*Create Distance Display task to be Displayed every 100 MS*/
+    Create_Task(LCD_Distancedisplay, 2, 1, 6);
+    /*Create LDR difference Display task to be Displayed every 150 MS*/
+    Create_Task(LCD_LDRDisplay, 3, 1, 7);
+    /*Create Time elapsed Display task to be Displayed every 1 S*/
+    Create_Task(LCD_TimeDisplay, 20, 0, 8);
+    /*Create Temperature Task to be executed every 4 S*/
+    Create_Task(Temperature_Task, 80, 2, 9);
+    /*Start scheduler*/
+    Tasks_Sceduler();
+}
+
+/******************************************************************************
+ * \Syntax          : void UltraSonic_Task(void)
+ * \Description     : Get the Ultrasonic Reading
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
+void UltraSonic_Task(void)
+{
+    if(APP_UltrasonicGFlag==FLAG_HIGH)
+    {
+        ultrasonic_distance(&APP_Distance, Ultrasonic_Notifaction);
+        APP_UltrasonicGFlag=FLAG_LOW;
+    }
+}
+
+/******************************************************************************
+ * \Syntax          : void avoid_obstacles(void)
+ * \Description     : A task Implements the logic of obstacles avoid
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
+void avoid_obstacles(void)
+{
+    if(APP_CarMoving==FLAG_HIGH)
+    {
+        //TODO: :  Adham Go and Check the Minimum Distance in car.h and check the behavior of this Task
+        if(APP_Distance<=MIN_DISTANCE)
+        {
+            /*Its Time to avoid obstacle*/
+            APP_AvoidFlag=FLAG_HIGH;
+        }
+        if(APP_AvoidFlag==FLAG_HIGH)
+        {
+            if((APP_Distance>=30)&&(APP_Distance<=50))
+            {
+                Motor_Set_Direction(Motor_Left_Forward);
+                Motor_Set_Direction(Motor_Right_Forward);
+                Motor_Set_Speed(5, Right_Motors);
+            }
+            else if(APP_Distance>50)
+            {
+                APP_AvoidFlag=FLAG_LOW;
+            }
+            else
+            {
+                Motor_Set_Direction(Motor_Left_Reverse);
+                Motor_Set_Direction(Motor_Right_Reverse);
+            }
+        }
+    }
+    else
+    {
+        /*MISRA*/
+    }
+}
+
+/******************************************************************************
+ * \Syntax          : void CarStart_Task(void)
+ * \Description     : Start Moving the Car
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
 void CarStart_Task(void)
 {
     if(APP_StartFlag==1)
@@ -148,6 +290,16 @@ void CarStart_Task(void)
     }
 }
 
+/******************************************************************************
+ * \Syntax          : void CarStop_Task(void)
+ * \Description     : Stop Moving the Car
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
 void CarStop_Task(void)
 {
     if((APP_CarTimer>=60) || ((APP_CarMoving==FLAG_LOW) && (APP_StopFlag==FLAG_LOW)))
@@ -161,15 +313,17 @@ void CarStop_Task(void)
         APP_Sw2Flag=FLAG_LOW;
     }
 }
-void UltraSonic_Task(void)
-{
-    if(APP_UltrasonicGFlag==FLAG_HIGH)
-    {
-        ultrasonic_distance(&APP_Distance, Ultrasonic_Notifaction);
-        APP_UltrasonicGFlag=FLAG_LOW;
-    }
-}
 
+/******************************************************************************
+ * \Syntax          : void Watch_Task(void)
+ * \Description     : Calculate the elapsed time of the car moving
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
 void Watch_Task(void)
 {
     if(APP_CarMoving==FLAG_HIGH)
@@ -178,16 +332,16 @@ void Watch_Task(void)
     }
 }
 
-void Temperature_Task(void)
-{
-    static u8 Local_Temp=0;
-    /*Read the Temperature*/
-    Local_Temp=Temp_Send_Read();
-    LCD_GoToXY(&APP_LCD, 5, 0);
-    /*Send Temperature to LCD*/
-    LCD_WriteNumber(&APP_LCD, (s64)Local_Temp);
-}
-
+/******************************************************************************
+ * \Syntax          : void ldr_swing_car(void)
+ * \Description     : A task that Implements the logic of Swing of car
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
 void ldr_swing_car(void)
 {
     if(APP_CarMoving==FLAG_HIGH)
@@ -225,6 +379,16 @@ void ldr_swing_car(void)
     }
 }
 
+/******************************************************************************
+ * \Syntax          : void LCD_Distancedisplay(void)
+ * \Description     : Display the Distance on LCD
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
 void LCD_Distancedisplay(void)
 {
     static u64 Local_Distance=0;
@@ -241,6 +405,16 @@ void LCD_Distancedisplay(void)
     }
 }
 
+/******************************************************************************
+ * \Syntax          : void LCD_LDRDisplay(void)
+ * \Description     : Display the Difference of the 2 LDRs Reading on LCD
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
 void LCD_LDRDisplay(void)
 {
     static u32 Local_LDRDifference=0;
@@ -253,90 +427,41 @@ void LCD_LDRDisplay(void)
     }
 }
 
-void avoid_obstacles(void)
-{
-    if(APP_CarMoving==FLAG_HIGH)
-    {
-        //TODO: :  Adham Go and Check the Minimum Distance in car.h and check the behavior of this Task
-        if(APP_Distance<=MIN_DISTANCE)
-        {
-            /*Its Time to avoid obstacle*/
-            APP_AvoidFlag=FLAG_HIGH;
-        }
-        if(APP_AvoidFlag==FLAG_HIGH)
-        {
-            if((APP_Distance>=30)&&(APP_Distance<=50))
-            {
-                Motor_Set_Direction(Motor_Left_Forward);
-                Motor_Set_Direction(Motor_Right_Forward);
-                Motor_Set_Speed(5, Right_Motors);
-            }
-            else if(APP_Distance>50)
-            {
-                APP_AvoidFlag=FLAG_LOW;
-            }
-            else
-            {
-                Motor_Set_Direction(Motor_Left_Reverse);
-                Motor_Set_Direction(Motor_Right_Reverse);
-            }
-        }
-    }
-    else
-    {
-        /*MISRA*/
-    }
-}
-
-void LCD_TimeDiplay(void)
+/******************************************************************************
+ * \Syntax          : void LCD_TimeDisplay(void)
+ * \Description     : Display the Difference of the 2 LDRs Reading on LCD
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
+void LCD_TimeDisplay(void)
 {
     //TODO: : Adham choose the place that you will print the elapsed Time on it
     LCD_GoToXY(&APP_LCD, 1, 0);
     LCD_WriteNumber(&APP_LCD, (s64)APP_CarTimer);
 }
 
-void CAR_Init(void)
+/******************************************************************************
+ * \Syntax          : void Temperature_Task(void)
+ * \Description     : Get the temperature every 4 Seconds
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
+void Temperature_Task(void)
 {
-    EXTI_Config_t Local_Switch1={.Port=EXTI_PORTF, .Pin=EXTI_PIN0,.TrigTye=EXTI_RAISING_EDGE};
-    EXTI_Config_t Local_Switch2={.Port=EXTI_PORTF, .Pin=EXTI_PIN4,.TrigTye=EXTI_RAISING_EDGE};
-    /*Initialize the system Hardware*/
-    LCD_Init(&APP_LCD);
-    Ultra_Sonic_init();
-    LDR_Init();
-    Temperature_Init();
-    Motor_Init();
-    Switch_Init(GPIO_PORTF, GPIO_PIN0, GPIO_PIN_PULLUP);
-    Switch_Init(GPIO_PORTF, GPIO_PIN4, GPIO_PIN_PULLUP);
-    LCD_SendString(&APP_LCD, "Temp ");
-    LCD_GoToXY(&APP_LCD, 7, 0);
-    LCD_SendChar(&APP_LCD, 248);
-    LCD_SendChar(&APP_LCD, 'C');
-    LCD_GoToXY(&APP_LCD, 10, 0);
-    LCD_SendString(&APP_LCD, "T ");
-    Switch_IntConfig(&Local_Switch1, Switch1_Notification);
-    Switch_IntConfig(&Local_Switch2, Switch2_Notification);
-    /*Create ultrasonic task to get reading every 100 MS*/
-    Create_Task(UltraSonic_Task, 2, 0, 0);
-    /*Create LDR difference Display task to be Displayed every 150 MS*/
-    Create_Task(LCD_LDRDisplay, 3, 1, 7);
-    /*Create Time elapsed Display task to be Displayed every 1 S*/
-    Create_Task(LCD_TimeDiplay, 20, 0, 8);
-    /*Create Distance Display task to be Displayed every 100 MS*/
-    Create_Task(LCD_Distancedisplay, 2, 1, 6);
-    /*Create Avoid obstacles task to be executed every 100 MS*/
-    Create_Task(avoid_obstacles, 2, 0, 1);
-    /*Create LDR swing task to be executed every 150 MS*/
-    Create_Task(ldr_swing_car, 3, 0, 5);
-    /*Create Temperature Task to be executed every 4 S*/
-    Create_Task(Temperature_Task, 80, 2, 9);
-    /*Create Car start Task to be executed every 50 MS*/
-    Create_Task(CarStart_Task, 1, 0, 2);
-    /*Create Car Stop Task to be executed every 50 MS*/
-    Create_Task(CarStop_Task, 1, 0, 3);
-    /*Create Watch Task to calculate the elapsed time every 1 S*/
-    Create_Task(Watch_Task, 20, 0, 4);
-    /*Start scheduler*/
-    Tasks_Sceduler();
+    static u8 Local_Temp=0;
+    /*Read the Temperature*/
+    Local_Temp=Temp_Send_Read();
+    LCD_GoToXY(&APP_LCD, 5, 0);
+    /*Send Temperature to LCD*/
+    LCD_WriteNumber(&APP_LCD, (s64)Local_Temp);
 }
 
 /**********************************************************************************************************************
