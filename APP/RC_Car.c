@@ -173,19 +173,17 @@ void CAR_Init(void)
     Motor_Init();
     Switch_Init(GPIO_PORTF, GPIO_PIN0, GPIO_PIN_PULLUP);
     Switch_Init(GPIO_PORTF, GPIO_PIN4, GPIO_PIN_PULLUP);
-    LCD_SendString(&APP_LCD, "Temp ");
-    LCD_GoToXY(&APP_LCD, 7, 0);
+    LCD_SendString(&APP_LCD, "Temp: ");
+    LCD_GoToXY(&APP_LCD, 8, 0);
     LCD_SendChar(&APP_LCD, 248);
     LCD_SendChar(&APP_LCD, 'C');
-    LCD_GoToXY(&APP_LCD, 10, 0);
-    LCD_SendString(&APP_LCD, "T ");
     Switch_IntConfig(&Local_Switch1, Switch1_Notification);
     Switch_IntConfig(&Local_Switch2, Switch2_Notification);
     ultrasonic_distance(&APP_Distance, Ultrasonic_Notifaction);
-    /*Create ultrasonic task to get reading every 100 MS*/
-    Create_Task(UltraSonic_Task, 2, 0, 0);
-    /*Create Avoid obstacles task to be executed every 100 MS*/
-    Create_Task(avoid_obstacles, 2, 0, 1);
+    /*Create ultrasonic task to get reading every 50 MS*/
+    Create_Task(UltraSonic_Task, 1, 0, 0);
+    /*Create Avoid obstacles task to be executed every 50 MS*/
+    Create_Task(avoid_obstacles, 1, 0, 1);
     /*Create Car start Task to be executed every 50 MS*/
     Create_Task(CarStart_Task, 1, 0, 2);
     /*Create Car Stop Task to be executed every 50 MS*/
@@ -237,30 +235,42 @@ void UltraSonic_Task(void)
  *******************************************************************************/
 void avoid_obstacles(void)
 {
+    static u8 Timeout = 0;
     if(APP_CarMoving==FLAG_HIGH)
     {
-        //TODO: :  Adham Go and Check the Minimum Distance in car.h and check the behavior of this Task
         if(APP_Distance<=MIN_DISTANCE)
         {
             /*Its Time to avoid obstacle*/
             APP_AvoidFlag=FLAG_HIGH;
         }
-        if(APP_AvoidFlag==FLAG_HIGH)
+        else if(APP_AvoidFlag == FLAG_LOW)
         {
-            if((APP_Distance>=30)&&(APP_Distance<=50))
+            Motor_Set_Direction(Motor_Left_Forward);
+            Motor_Set_Direction(Motor_Right_Forward);
+            Motor_Set_Speed(65, Right_Motors);
+            Motor_Set_Speed(65, Left_Motors);
+        }
+        else{
+            /* MISRA */
+        }
+        if (APP_AvoidFlag == FLAG_HIGH)
+        {
+            if (APP_Distance > 30)
             {
-                Motor_Set_Direction(Motor_Left_Forward);
+                Motor_Set_Direction(Motor_Left_Reverse);
                 Motor_Set_Direction(Motor_Right_Forward);
-                Motor_Set_Speed(5, Right_Motors);
-            }
-            else if(APP_Distance>50)
-            {
-                APP_AvoidFlag=FLAG_LOW;
+                if(APP_CarTimer-Timeout > 0){
+                    APP_AvoidFlag = FLAG_LOW;
+                }
+
             }
             else
             {
+                Motor_Set_Speed(80, Right_Motors);
+                Motor_Set_Speed(80, Left_Motors);
                 Motor_Set_Direction(Motor_Left_Reverse);
                 Motor_Set_Direction(Motor_Right_Reverse);
+                Timeout=APP_CarTimer;
             }
         }
     }
@@ -344,7 +354,7 @@ void Watch_Task(void)
  *******************************************************************************/
 void ldr_swing_car(void)
 {
-    if(APP_CarMoving==FLAG_HIGH)
+    if((APP_CarMoving==FLAG_HIGH)&&(APP_AvoidFlag != FLAG_HIGH))
     {
         LDR_Read(APP_LDRArr);
         if(APP_LDRArr[0]>=APP_LDRArr[1])
@@ -354,23 +364,28 @@ void ldr_swing_car(void)
         }
         else
         {
-            APP_LDRDifference=APP_LDRArr[0]-APP_LDRArr[1];
+            APP_LDRDifference=APP_LDRArr[1]-APP_LDRArr[0];
+            APP_LDRFlag=FLAG_LOW;
         }
-        //TODO: :  Adham Go to Car.h and set the MAcro with the value you want
+        Motor_Set_Direction(Motor_Left_Forward);
+        Motor_Set_Direction(Motor_Right_Forward);
         if(APP_LDRDifference>=LDR_DIFF)
         {
             if(APP_LDRFlag==FLAG_HIGH)
             {
-                //TODO: :  Adham Implement swing Mechanism Case 0 is Greater
+                Motor_Set_Speed(0, Right_Motors);
+                Motor_Set_Speed(80, Left_Motors);
             }
             else
             {
-                //TODO: :  Adham Implement swing Mechanism Case 1 is Greater
+                Motor_Set_Speed(0, Left_Motors);
+                Motor_Set_Speed(80, Right_Motors);
             }
         }
         else
         {
-            /*MISRA*/
+            Motor_Set_Speed(65, Left_Motors);
+            Motor_Set_Speed(65, Right_Motors);
         }
     }
     else
@@ -394,8 +409,7 @@ void LCD_Distancedisplay(void)
     static u64 Local_Distance=0;
     if(Local_Distance != APP_Distance)
     {
-        //TODO: : Adham choose the place that you will print the Distance on it
-        LCD_GoToXY(&APP_LCD, 1, 0);
+        LCD_GoToXY(&APP_LCD, 8, 1);
         LCD_WriteNumber(&APP_LCD, (s64)APP_Distance);
         Local_Distance=APP_Distance;
     }
@@ -420,10 +434,13 @@ void LCD_LDRDisplay(void)
     static u32 Local_LDRDifference=0;
     if(Local_LDRDifference!=APP_LDRDifference)
     {
-        //TODO: : Adham choose the place that you will print the LDR difference on it
-        LCD_GoToXY(&APP_LCD, 1, 0);
+        LCD_GoToXY(&APP_LCD, 12, 0);
         LCD_WriteNumber(&APP_LCD, (s64)APP_LDRDifference);
         Local_LDRDifference=APP_LDRDifference;
+    }
+    else
+    {
+        /*MISRA*/
     }
 }
 
@@ -439,8 +456,7 @@ void LCD_LDRDisplay(void)
  *******************************************************************************/
 void LCD_TimeDisplay(void)
 {
-    //TODO: : Adham choose the place that you will print the elapsed Time on it
-    LCD_GoToXY(&APP_LCD, 1, 0);
+    LCD_GoToXY(&APP_LCD, 0, 1);
     LCD_WriteNumber(&APP_LCD, (s64)APP_CarTimer);
 }
 
@@ -459,7 +475,7 @@ void Temperature_Task(void)
     static u8 Local_Temp=0;
     /*Read the Temperature*/
     Local_Temp=Temp_Send_Read();
-    LCD_GoToXY(&APP_LCD, 5, 0);
+    LCD_GoToXY(&APP_LCD, 6, 0);
     /*Send Temperature to LCD*/
     LCD_WriteNumber(&APP_LCD, (s64)Local_Temp);
 }

@@ -28,7 +28,6 @@ static u64 risingEdgeTime = 0;
 static u64 fallingEdgeTime = 0;
 static u64 difference = 0;
 static f64 time = 0;
-static u64 distance = 0;
 static void (*ptr_func_gobal)(void);
 static u64* distance_global = NULL;
 static u8 captureFlag = 0;
@@ -51,7 +50,7 @@ static GPTM_Config_t GPTM_config = {.TimerBlock = GPTM_WTIMER5,.TimerConc = GPTM
  *******************************************************************************/
 static void Delay_In_Us(u32 us)
 {
-    uint32_t count = (us * 3) / 10;  // Adjust this value based on your system clock frequency
+    u32 count = (us * 3) / 10;  // Adjust this value based on your system clock frequency
     while (count != 0) {
         count--;
     }
