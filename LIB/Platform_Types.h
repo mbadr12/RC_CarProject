@@ -14,11 +14,6 @@
 #ifndef PLATFORM_TYPES_H_
 #define PLATFORM_TYPES_H_
 
-#define NUMBER_OF_PINS_PER_PORT 16
-
-#define WORD_LENGTH_BITS 32u
-#define WORD_LENGTH_BYTES 4u
-
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned long int u32;

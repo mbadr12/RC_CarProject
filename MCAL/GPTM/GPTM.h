@@ -84,7 +84,7 @@ typedef enum
 typedef enum
 {
     GPTM_EVENT_POSITIVE_EDGE=0,
-    GPTM_EVENT_NEGATIVE_EDGE,
+    GPTM_EVENT_NEGATIVE_EDGE=1,
     GPTM_EVENT_BOTH_EDGES=3
 }GPTM_EventTrigger_t;
 

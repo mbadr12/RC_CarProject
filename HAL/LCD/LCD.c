@@ -27,7 +27,7 @@
 void _delay_ms(u32 Copy_Delay)
 {
     u32 Local_Counter=0;
-    for( ;Local_Counter<(1000*Copy_Delay);Local_Counter++);
+    for( ;Local_Counter<(1000UL*Copy_Delay);Local_Counter++);
 }
 
 /***********************************************************************************************
@@ -44,7 +44,7 @@ void _delay_ms(u32 Copy_Delay)
 static void LCD_SendComand(LCD_Config_t* Copy_Config,u8 Copy_Comand)
 {
     u8 Local_Counter=0;
-    u8 MaxValue=Copy_Config->Mode;
+    u8 MaxValue=Copy_Config->Mode_t;
     /*set RS and RW pin to zero*/
     GPIO_SetPinValue(Copy_Config->ControlPinsPorts[LCD_RS], Copy_Config->ControlPins[LCD_RS], GPIO_PIN_LOW);
     GPIO_SetPinValue(Copy_Config->ControlPinsPorts[LCD_RW], Copy_Config->ControlPins[LCD_RW], GPIO_PIN_LOW);
@@ -74,7 +74,7 @@ static ErrorState_t LCD_SendData(LCD_Config_t* Copy_Config,char Copy_Data)
 {
     ErrorState_t Local_ErrorState=E_OK;
     u8 Local_Counter=0;
-    u8 MaxValue=Copy_Config->Mode;
+    u8 MaxValue=Copy_Config->Mode_t;
     if(Copy_Config==NULL)
     {
         Local_ErrorState=E_NULL_POINTER;
@@ -115,7 +115,7 @@ ErrorState_t LCD_Init(LCD_Config_t* Copy_Config)
 {
     ErrorState_t Local_ErrorState=E_OK;
     u8 Local_Counter=0;
-    u8 Local_Max=Copy_Config->Mode;
+    u8 Local_Max=Copy_Config->Mode_t;
     u8 Local_FuncSet=0x30;
     u8 Local_DisSet=0x0c;
     GPIO_Config_t LCD_Config[11];
@@ -159,7 +159,7 @@ ErrorState_t LCD_Init(LCD_Config_t* Copy_Config)
         _delay_ms(40);
         if(Local_ErrorState==E_OK)
         {
-            switch(Copy_Config->Mode)
+            switch(Copy_Config->Mode_t)
             {
             case LCD_4BIT_MODE:
                 /*set the mode*/
@@ -208,7 +208,7 @@ ErrorState_t LCD_SendChar(LCD_Config_t* Copy_Config,char Copy_Char)
         Copy_Config->XPosition[0]=0;
         LCD_GoToXY(Copy_Config, Copy_Config->XPosition[0], Copy_Config->Yposition[0]);
     }
-    if(Copy_Config->Mode==LCD_4BIT_MODE)
+    if(Copy_Config->Mode_t==LCD_4BIT_MODE)
     {
         LCD_SendData(Copy_Config, (Copy_Char>>4));
         _delay_ms(5);
@@ -267,7 +267,7 @@ ErrorState_t LCD_Clear(LCD_Config_t* Copy_Config)
     }
     else
     {
-        if(Copy_Config->Mode==4)
+        if(Copy_Config->Mode_t==4)
         {
             LCD_SendComand(Copy_Config, 0x00);
         }
@@ -351,13 +351,13 @@ ErrorState_t LCD_GoToXY(LCD_Config_t* Copy_Config,u8 Copy_XPosition,u8 Copy_YPos
     }
     else
     {
-        Copy_Config->XPosition[0]=Copy_XPosition-0x80;
+        *(Copy_Config->XPosition)=Copy_XPosition-0x80UL;
         Copy_Config->Yposition[0]=Copy_YPosition;
         if(Copy_YPosition==1)
         {
-            Local_Address+=0x40;
+            Local_Address+=0x40UL;
         }
-        if(Copy_Config->Mode==4)
+        if(Copy_Config->Mode_t==4UL)
         {
             LCD_SendComand(Copy_Config, Local_Address>>4);
         }

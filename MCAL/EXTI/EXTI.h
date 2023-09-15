@@ -94,9 +94,9 @@ ErrorState_t EXTI_SetCallBack(EXTI_Port_t Copy_Port, EXTI_Pin_t Copy_Pin,void (*
 /**********************************************************************************************************************
  *  LOCAL MACROS CONSTANT\FUNCTION
  *********************************************************************************************************************/
-#define EXTI_PORTS           6
+#define EXTI_PORTS           6UL
 
-#define EXTI_PINS            8
+#define EXTI_PINS            8UL
 
 #define EXTI_GPIO           EXTI_Arr[Copy_Config[Local_Counter].Port]
 

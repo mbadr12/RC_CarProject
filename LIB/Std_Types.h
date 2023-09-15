@@ -21,7 +21,7 @@
  *  GLOBAL CONSTANT MACROS
  *********************************************************************************************************************/
 
-#define NULL			0
+#define NULL	(void*) 0
 
 #define SET 1
 #define RESET 0
@@ -49,7 +49,7 @@ typedef enum
 	SEND_BUFFER,
 	RECEIVE_CHAR,
 	RECEIVE_BUFFER,
-	SINGLE_CONVERSION=0,
+	SINGLE_CONVERSION,
 	CHAIN_CONVERSION
 }ISR_Src;
 

@@ -33,7 +33,7 @@
  *********************************************************************************************************************/
 static u8 APP_LCDX=0,APP_LCDY=0;
 static LCD_Config_t APP_LCD={.ControlPins={GPIO_PIN0,GPIO_PIN7,GPIO_PIN1},.ControlPinsPorts={GPIO_PORTB,GPIO_PORTF,GPIO_PORTB},.Cursor=LCD_NO_CURSOR,
-                             .DataPins={GPIO_PIN2,GPIO_PIN3,GPIO_PIN4,GPIO_PIN5},.Font=LCD_5_8_FONT,.LinesNum=LCD_TWO_LINES,.Mode=LCD_4BIT_MODE,
+                             .DataPins={GPIO_PIN2,GPIO_PIN3,GPIO_PIN4,GPIO_PIN5,GPIO_PIN0,GPIO_PIN0,GPIO_PIN0,GPIO_PIN0},.Font=LCD_5_8_FONT,.LinesNum=LCD_TWO_LINES,.Mode_t=LCD_4BIT_MODE,
                              .XPosition=&APP_LCDX,.Yposition=&APP_LCDY,.DataPinsPorts={GPIO_PORTB,GPIO_PORTB,GPIO_PORTB,GPIO_PORTB}};
 static u64 APP_Distance=0;
 
@@ -49,13 +49,9 @@ static Flag_State_t APP_CarMoving=FLAG_LOW;
 
 static u8 APP_CarTimer=0;
 
-static u32 APP_LDRArr[2]={0};
-
 static u32 APP_LDRDifference=0;
 
 static Flag_State_t APP_AvoidFlag=FLAG_LOW;
-
-static Flag_State_t APP_LDRFlag=FLAG_LOW;
 
 static Flag_State_t APP_StopFlag=FLAG_LOW;
 
@@ -174,32 +170,32 @@ void CAR_Init(void)
     Switch_Init(GPIO_PORTF, GPIO_PIN0, GPIO_PIN_PULLUP);
     Switch_Init(GPIO_PORTF, GPIO_PIN4, GPIO_PIN_PULLUP);
     LCD_SendString(&APP_LCD, "Temp: ");
-    LCD_GoToXY(&APP_LCD, 8, 0);
-    LCD_SendChar(&APP_LCD, 248);
+    LCD_GoToXY(&APP_LCD, 8UL, 0UL);
+    LCD_SendChar(&APP_LCD, 248UL);
     LCD_SendChar(&APP_LCD, 'C');
-    Switch_IntConfig(&Local_Switch1, Switch1_Notification);
-    Switch_IntConfig(&Local_Switch2, Switch2_Notification);
-    ultrasonic_distance(&APP_Distance, Ultrasonic_Notifaction);
+    Switch_IntConfig(&Local_Switch1, &Switch1_Notification);
+    Switch_IntConfig(&Local_Switch2, &Switch2_Notification);
+    ultrasonic_distance(&APP_Distance, &Ultrasonic_Notifaction);
     /*Create ultrasonic task to get reading every 50 MS*/
-    Create_Task(UltraSonic_Task, 1, 0, 0);
+    Create_Task(&UltraSonic_Task, 1UL, 0UL, 0UL);
     /*Create Avoid obstacles task to be executed every 50 MS*/
-    Create_Task(avoid_obstacles, 1, 0, 1);
+    Create_Task(&avoid_obstacles, 1UL, 0UL, 1UL);
     /*Create Car start Task to be executed every 50 MS*/
-    Create_Task(CarStart_Task, 1, 0, 2);
+    Create_Task(&CarStart_Task, 1UL, 0UL, 2UL);
     /*Create Car Stop Task to be executed every 50 MS*/
-    Create_Task(CarStop_Task, 1, 0, 3);
+    Create_Task(&CarStop_Task, 1UL, 0UL, 3UL);
     /*Create Watch Task to calculate the elapsed time every 1 S*/
-    Create_Task(Watch_Task, 20, 0, 4);
+    Create_Task(&Watch_Task, 20UL, 0UL, 4UL);
     /*Create LDR swing task to be executed every 150 MS*/
-    Create_Task(ldr_swing_car, 3, 0, 5);
+    Create_Task(&ldr_swing_car, 3UL, 0UL, 5UL);
     /*Create Distance Display task to be Displayed every 100 MS*/
-    Create_Task(LCD_Distancedisplay, 2, 1, 6);
+    Create_Task(&LCD_Distancedisplay, 2UL, 1UL, 6UL);
     /*Create LDR difference Display task to be Displayed every 150 MS*/
-    Create_Task(LCD_LDRDisplay, 3, 1, 7);
+    Create_Task(&LCD_LDRDisplay, 3UL, 1UL, 7UL);
     /*Create Time elapsed Display task to be Displayed every 1 S*/
-    Create_Task(LCD_TimeDisplay, 20, 0, 8);
+    Create_Task(&LCD_TimeDisplay, 20UL, 0UL, 8UL);
     /*Create Temperature Task to be executed every 4 S*/
-    Create_Task(Temperature_Task, 80, 2, 9);
+    Create_Task(&Temperature_Task, 80UL, 2UL, 9UL);
     /*Start scheduler*/
     Tasks_Sceduler();
 }
@@ -218,7 +214,7 @@ void UltraSonic_Task(void)
 {
     if(APP_UltrasonicGFlag==FLAG_HIGH)
     {
-        ultrasonic_distance(&APP_Distance, Ultrasonic_Notifaction);
+        ultrasonic_distance(&APP_Distance, &Ultrasonic_Notifaction);
         APP_UltrasonicGFlag=FLAG_LOW;
     }
 }
@@ -235,7 +231,7 @@ void UltraSonic_Task(void)
  *******************************************************************************/
 void avoid_obstacles(void)
 {
-    static u8 Timeout = 0;
+    static uint8_t Timeout = 0;
     if(APP_CarMoving==FLAG_HIGH)
     {
         if(APP_Distance<=MIN_DISTANCE)
@@ -243,31 +239,24 @@ void avoid_obstacles(void)
             /*Its Time to avoid obstacle*/
             APP_AvoidFlag=FLAG_HIGH;
         }
-        else if(APP_AvoidFlag == FLAG_LOW)
-        {
-            Motor_Set_Direction(Motor_Left_Forward);
-            Motor_Set_Direction(Motor_Right_Forward);
-            Motor_Set_Speed(65, Right_Motors);
-            Motor_Set_Speed(65, Left_Motors);
-        }
         else{
             /* MISRA */
         }
         if (APP_AvoidFlag == FLAG_HIGH)
         {
-            if (APP_Distance > 30)
+            if (APP_Distance > 30UL)
             {
                 Motor_Set_Direction(Motor_Left_Reverse);
                 Motor_Set_Direction(Motor_Right_Forward);
-                if(APP_CarTimer-Timeout > 0){
+                if((APP_CarTimer-Timeout) > 0UL){
                     APP_AvoidFlag = FLAG_LOW;
                 }
 
             }
             else
             {
-                Motor_Set_Speed(80, Right_Motors);
-                Motor_Set_Speed(80, Left_Motors);
+                Motor_Set_Speed(80UL, Right_Motors);
+                Motor_Set_Speed(80UL, Left_Motors);
                 Motor_Set_Direction(Motor_Left_Reverse);
                 Motor_Set_Direction(Motor_Right_Reverse);
                 Timeout=APP_CarTimer;
@@ -292,7 +281,7 @@ void avoid_obstacles(void)
  *******************************************************************************/
 void CarStart_Task(void)
 {
-    if(APP_StartFlag==1)
+    if(APP_StartFlag==1UL)
     {
         Motor_Start();
         APP_StartFlag=FLAG_LOW;
@@ -312,11 +301,11 @@ void CarStart_Task(void)
  *******************************************************************************/
 void CarStop_Task(void)
 {
-    if((APP_CarTimer>=60) || ((APP_CarMoving==FLAG_LOW) && (APP_StopFlag==FLAG_LOW)))
+    if((APP_CarTimer>=60UL) || ((APP_CarMoving==FLAG_LOW) && (APP_StopFlag==FLAG_LOW)))
     {
         Motor_Stop();
         APP_StopFlag=FLAG_HIGH;
-        APP_CarTimer=0;
+        APP_CarTimer=0UL;
         APP_StartFlag=FLAG_LOW;
         APP_CarMoving=FLAG_LOW;
         APP_Sw1Flag=FLAG_LOW;
@@ -354,6 +343,8 @@ void Watch_Task(void)
  *******************************************************************************/
 void ldr_swing_car(void)
 {
+    u32 APP_LDRArr[2]={0};
+    Flag_State_t APP_LDRFlag=FLAG_LOW;
     if((APP_CarMoving==FLAG_HIGH)&&(APP_AvoidFlag != FLAG_HIGH))
     {
         LDR_Read(APP_LDRArr);
@@ -367,25 +358,29 @@ void ldr_swing_car(void)
             APP_LDRDifference=APP_LDRArr[1]-APP_LDRArr[0];
             APP_LDRFlag=FLAG_LOW;
         }
-        Motor_Set_Direction(Motor_Left_Forward);
-        Motor_Set_Direction(Motor_Right_Forward);
         if(APP_LDRDifference>=LDR_DIFF)
         {
             if(APP_LDRFlag==FLAG_HIGH)
             {
-                Motor_Set_Speed(0, Right_Motors);
-                Motor_Set_Speed(80, Left_Motors);
+                Motor_Set_Direction(Motor_Left_Forward);
+                Motor_Set_Direction(Motor_Right_Reverse);
+                Motor_Set_Speed(80UL, Right_Motors);
+                Motor_Set_Speed(80UL, Left_Motors);
             }
             else
             {
-                Motor_Set_Speed(0, Left_Motors);
-                Motor_Set_Speed(80, Right_Motors);
+                Motor_Set_Direction(Motor_Left_Reverse);
+                Motor_Set_Direction(Motor_Right_Forward);
+                Motor_Set_Speed(80UL, Left_Motors);
+                Motor_Set_Speed(80UL, Right_Motors);
             }
         }
         else
         {
-            Motor_Set_Speed(65, Left_Motors);
-            Motor_Set_Speed(65, Right_Motors);
+            Motor_Set_Direction(Motor_Left_Forward);
+            Motor_Set_Direction(Motor_Right_Forward);
+            Motor_Set_Speed(65UL, Left_Motors);
+            Motor_Set_Speed(65UL, Right_Motors);
         }
     }
     else
@@ -409,8 +404,9 @@ void LCD_Distancedisplay(void)
     static u64 Local_Distance=0;
     if(Local_Distance != APP_Distance)
     {
-        LCD_GoToXY(&APP_LCD, 8, 1);
+        LCD_GoToXY(&APP_LCD, 8UL, 1UL);
         LCD_WriteNumber(&APP_LCD, (s64)APP_Distance);
+        LCD_SendString(&APP_LCD, "   ");
         Local_Distance=APP_Distance;
     }
     else
@@ -434,8 +430,9 @@ void LCD_LDRDisplay(void)
     static u32 Local_LDRDifference=0;
     if(Local_LDRDifference!=APP_LDRDifference)
     {
-        LCD_GoToXY(&APP_LCD, 12, 0);
+        LCD_GoToXY(&APP_LCD, 12UL, 0UL);
         LCD_WriteNumber(&APP_LCD, (s64)APP_LDRDifference);
+        LCD_SendString(&APP_LCD, "   ");
         Local_LDRDifference=APP_LDRDifference;
     }
     else
@@ -456,7 +453,7 @@ void LCD_LDRDisplay(void)
  *******************************************************************************/
 void LCD_TimeDisplay(void)
 {
-    LCD_GoToXY(&APP_LCD, 0, 1);
+    LCD_GoToXY(&APP_LCD, 0UL, 1UL);
     LCD_WriteNumber(&APP_LCD, (s64)APP_CarTimer);
 }
 
@@ -472,10 +469,10 @@ void LCD_TimeDisplay(void)
  *******************************************************************************/
 void Temperature_Task(void)
 {
-    static u8 Local_Temp=0;
+    static u32 Local_Temp=0;
     /*Read the Temperature*/
     Local_Temp=Temp_Send_Read();
-    LCD_GoToXY(&APP_LCD, 6, 0);
+    LCD_GoToXY(&APP_LCD, 6UL, 0UL);
     /*Send Temperature to LCD*/
     LCD_WriteNumber(&APP_LCD, (s64)Local_Temp);
 }

@@ -31,7 +31,7 @@ typedef enum
 {
     LCD_NO_CURSOR=0,
     LCD_CUSROR_SOLID=2,
-    LCD_CURSORBLINK
+    LCD_CURSORBLINK=3
 }LCD_Cursor_t;
 
 typedef enum
@@ -52,7 +52,7 @@ typedef struct
     GPIO_Port_t ControlPinsPorts[3];
     GPIO_Pin_t DataPins[8];
     GPIO_Pin_t ControlPins[3];
-    LCD_Mode_t Mode;
+    LCD_Mode_t Mode_t;
     LCD_Cursor_t Cursor;
     LCD_Font_t Font;
     LCD_LineNum_t LinesNum;
@@ -186,6 +186,11 @@ static void LCD_SendComand(LCD_Config_t* Copy_Config,u8 Copy_Comand);
  * \Return value:   : ErrorState_t
  *********************************************************************************************/
 static ErrorState_t LCD_SendData(LCD_Config_t* Copy_Config,char Copy_Data);
+
+/**********************************************************************************************************************
+ *  LOCAL FUNCTIONS
+ *********************************************************************************************************************/
+void _delay_ms(u32 Copy_Delay);
 
 #endif  /* LCD_INTERFACE_H */
 

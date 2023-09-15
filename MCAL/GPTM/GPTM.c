@@ -25,7 +25,7 @@
  *********************************************************************************************************************/
 static GPTM_RegDef_t* GPTM_Arr[GPTMS_NUM]={GPTM0,GPTM1,GPTM2,GPTM3,GPTM4,GPTM5,WGPTM0,WGPTM1,WGPTM2,WGPTM3,WGPTM4,WGPTM5};
 
-static void(*GPTM_CallBackArr[GPTMS_NUM][GPTM_CHANNELS][GPTM_INT_SOURCES])(void)={{{NULL}}};
+static void(*GPTM_CallBackArr[GPTMS_NUM][GPTM_CHANNELS][GPTM_INT_SOURCES])(void)={NULL};
 
 /**********************************************************************************************************************
  *  GLOBAL FUNCTIONS
@@ -45,14 +45,14 @@ static void(*GPTM_CallBackArr[GPTMS_NUM][GPTM_CHANNELS][GPTM_INT_SOURCES])(void)
 ErrorState_t GPTM_Init(GPTM_Config_t* Copy_Config, TimersNum_t Copy_Number)
 {
     ErrorState_t Local_ErrorState=E_OK;
-    TimersNum_t Local_Counter=0;
+    TimersNum_t Local_Counter=0UL;
     if(Copy_Config==NULL)
     {
         Local_ErrorState=E_NULL_POINTER;
     }
     else
     {
-        for(Local_Counter=0;Local_Counter<Copy_Number;Local_Counter++)
+        for(Local_Counter=0UL;Local_Counter<Copy_Number;Local_Counter++)
         {
             if((GPTMN_CONFIG.TimerBlock>GPTM_WTIMER5) || (GPTMN_CONFIG.TimerChannel>GPTM_TIMERB))
             {
@@ -447,8 +447,8 @@ ErrorState_t GPTM_SetCallBack(GPTM_BlockNum_t Copy_TimerNum, GPTM_Channel_t Copy
  ***************************************************************************************************/
 void TIMER0A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER0]->RIS),Local_Counter)==1)
         {
@@ -481,8 +481,8 @@ void TIMER0A_Handler(void)
  ***************************************************************************************************/
 void TIMER0B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER0]->RIS),Local_Counter)==1)
         {
@@ -507,8 +507,8 @@ void TIMER0B_Handler(void)
  ***************************************************************************************************/
 void TIMER1A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER1]->RIS),Local_Counter)==1)
         {
@@ -541,8 +541,8 @@ void TIMER1A_Handler(void)
  ***************************************************************************************************/
 void TIMER1B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER1]->RIS),Local_Counter)==1)
         {
@@ -567,8 +567,8 @@ void TIMER1B_Handler(void)
  ***************************************************************************************************/
 void TIMER2A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER2]->RIS),Local_Counter)==1)
         {
@@ -601,14 +601,14 @@ void TIMER2A_Handler(void)
  ***************************************************************************************************/
 void TIMER2B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
-        if(GET_BIT((GPTM_Arr[GPTM_TIMER2]->RIS),Local_Counter)==1)
+        if(GET_BIT((GPTM_Arr[GPTM_TIMER2]->RIS),Local_Counter)==1UL)
         {
-            if(GPTM_CallBackArr[GPTM_TIMER2][GPTM_TIMERB][(Local_Counter-8)]!=NULL)
+            if(GPTM_CallBackArr[GPTM_TIMER2][GPTM_TIMERB][(Local_Counter-8UL)]!=NULL)
             {
-                GPTM_CallBackArr[GPTM_TIMER2][GPTM_TIMERB][(Local_Counter-8)]();
+                GPTM_CallBackArr[GPTM_TIMER2][GPTM_TIMERB][(Local_Counter-8UL)]();
             }
             GPTM_Arr[GPTM_TIMER2]->ICR=1<<Local_Counter;
         }
@@ -627,8 +627,8 @@ void TIMER2B_Handler(void)
  ***************************************************************************************************/
 void TIMER3A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER3]->RIS),Local_Counter)==1)
         {
@@ -661,8 +661,8 @@ void TIMER3A_Handler(void)
  ***************************************************************************************************/
 void TIMER3B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER3]->RIS),Local_Counter)==1)
         {
@@ -687,8 +687,8 @@ void TIMER3B_Handler(void)
  ***************************************************************************************************/
 void TIMER4A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER4]->RIS),Local_Counter)==1)
         {
@@ -721,8 +721,8 @@ void TIMER4A_Handler(void)
  ***************************************************************************************************/
 void TIMER4B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER4]->RIS),Local_Counter)==1)
         {
@@ -747,8 +747,8 @@ void TIMER4B_Handler(void)
  ***************************************************************************************************/
 void TIMER5A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER5]->RIS),Local_Counter)==1)
         {
@@ -781,8 +781,8 @@ void TIMER5A_Handler(void)
  ***************************************************************************************************/
 void TIMER5B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_TIMER5]->RIS),Local_Counter)==1)
         {
@@ -797,8 +797,8 @@ void TIMER5B_Handler(void)
 
 void WTIMER0A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER0]->RIS),Local_Counter)==1)
         {
@@ -821,8 +821,8 @@ void WTIMER0A_Handler(void)
 
 void WTIMER0B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER0]->RIS),Local_Counter)==1)
         {
@@ -837,8 +837,8 @@ void WTIMER0B_Handler(void)
 
 void WTIMER1A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER1]->RIS),Local_Counter)==1)
         {
@@ -861,8 +861,8 @@ void WTIMER1A_Handler(void)
 
 void WTIMER1B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER1]->RIS),Local_Counter)==1)
         {
@@ -877,8 +877,8 @@ void WTIMER1B_Handler(void)
 
 void WTIMER2A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER2]->RIS),Local_Counter)==1)
         {
@@ -901,8 +901,8 @@ void WTIMER2A_Handler(void)
 
 void WTIMER2B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER2]->RIS),Local_Counter)==1)
         {
@@ -917,8 +917,8 @@ void WTIMER2B_Handler(void)
 
 void WTIMER3A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER3]->RIS),Local_Counter)==1)
         {
@@ -941,8 +941,8 @@ void WTIMER3A_Handler(void)
 
 void WTIMER3B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER3]->RIS),Local_Counter)==1)
         {
@@ -957,8 +957,8 @@ void WTIMER3B_Handler(void)
 
 void WTIMER4A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER4]->RIS),Local_Counter)==1)
         {
@@ -981,8 +981,8 @@ void WTIMER4A_Handler(void)
 
 void WTIMER4B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER4]->RIS),Local_Counter)==1)
         {
@@ -997,10 +997,10 @@ void WTIMER4B_Handler(void)
 
 void WTIMER5A_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=0;Local_Counter<3;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=0UL;Local_Counter<3UL;Local_Counter++)
     {
-        if(GET_BIT((GPTM_Arr[GPTM_WTIMER5]->RIS),Local_Counter)==1)
+        if(GET_BIT((GPTM_Arr[GPTM_WTIMER5]->RIS),Local_Counter)==1UL)
         {
             if(GPTM_CallBackArr[GPTM_WTIMER5][GPTM_TIMERA][Local_Counter]!=NULL)
             {
@@ -1021,8 +1021,8 @@ void WTIMER5A_Handler(void)
 
 void WTIMER5B_Handler(void)
 {
-    u8 Local_Counter=0;
-    for(Local_Counter=8;Local_Counter<12;Local_Counter++)
+    u8 Local_Counter=0UL;
+    for(Local_Counter=8UL;Local_Counter<12UL;Local_Counter++)
     {
         if(GET_BIT((GPTM_Arr[GPTM_WTIMER5]->RIS),Local_Counter)==1)
         {

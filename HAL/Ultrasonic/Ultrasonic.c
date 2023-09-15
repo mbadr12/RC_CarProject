@@ -24,10 +24,6 @@
 /**********************************************************************************************************************
  *  LOCAL DATA
  *********************************************************************************************************************/
-static u64 risingEdgeTime = 0;
-static u64 fallingEdgeTime = 0;
-static u64 difference = 0;
-static f64 time = 0;
 static void (*ptr_func_gobal)(void);
 static u64* distance_global = NULL;
 static u8 captureFlag = 0;
@@ -50,8 +46,8 @@ static GPTM_Config_t GPTM_config = {.TimerBlock = GPTM_WTIMER5,.TimerConc = GPTM
  *******************************************************************************/
 static void Delay_In_Us(u32 us)
 {
-    u32 count = (us * 3) / 10;  // Adjust this value based on your system clock frequency
-    while (count != 0) {
+    u32 count = (us * 3UL) / 10UL;  /*Adjust this value based on your system clock frequency*/
+    while (count != 0UL) {
         count--;
     }
 }
@@ -68,18 +64,21 @@ static void Delay_In_Us(u32 us)
  *******************************************************************************/
 void Get_Distance(void)
 {
-
-    if(captureFlag == 0){
+    u64 risingEdgeTime = 0;
+    u64 fallingEdgeTime = 0;
+    u64 difference = 0;
+    u64 time1 = 0;
+    if(captureFlag == 0UL){
         GPTM_GetTimerValue(&GPTM_config,&risingEdgeTime);
-        captureFlag=1;
+        captureFlag=1UL;
     }
     else{
         GPTM_GetTimerValue(&GPTM_config,&fallingEdgeTime);
         difference = risingEdgeTime - fallingEdgeTime ;
-        time = (f64)(difference) / (f64)(16000000);
-        *distance_global = (time * 34300) / 2 ;
+        time1 = difference *17150UL;
+        *distance_global = time1 / 16000000UL;
         ptr_func_gobal();
-        captureFlag = 0;
+        captureFlag = 0UL;
     }
 }
 
@@ -105,17 +104,17 @@ void Ultra_Sonic_init(void)
     RCC_SetPrephralClockState(RCC_wGPTM5,RCC_CLK_ENABLE);
     /*GPIO configuration*/
     GPIO_Config_t GPIO_config_E0 = {.Port = GPIO_PORTE , .Pin = GPIO_PIN0 , .Dir = GPIO_PIN_OUTPUT , .Mode = GPIO_PIN_DIGITAL,
-                                    .PinState = GPIO_PIN_PUSHPULL,.PinPull = GPIO_PIN_FLOATING};
+                                    .PinState = GPIO_PIN_PUSHPULL,.PinPull = GPIO_PIN_FLOATING,.AltFuncNum = GPIO_ALTFUNC0};
     GPIO_Config_t GPIO_config_D6 = {.Port = GPIO_PORTD , .Pin = GPIO_PIN6 , .Dir = GPIO_PIN_INPUT , .Mode = GPIO_PIN_ALTFUNC,
                                     .PinState = GPIO_PIN_PUSHPULL , .PinPull = GPIO_PIN_FLOATING, .AltFuncNum = GPIO_ALTFUNC7};
-    GPIO_Init(&GPIO_config_E0,1);
-    GPIO_Init(&GPIO_config_D6,1);
+    GPIO_Init(&GPIO_config_E0,1UL);
+    GPIO_Init(&GPIO_config_D6,1UL);
     /*GPTM configuration*/
-    GPTM_Init(&GPTM_config,1);
+    GPTM_Init(&GPTM_config,1UL);
     GPTM_SetEventTrigger(GPTM_WTIMER5,GPTM_TIMERA,GPTM_EVENT_BOTH_EDGES);
     GPTM_SetTimerLoadValue(&GPTM_config,0xFFFFFFFF);
     GPTM_SetState(GPTM_WTIMER5,GPTM_TIMERA,GPTM_START);
-    GPTM_SetCallBack(GPTM_WTIMER5,GPTM_TIMERA,GPTM_CAPUTURE_EVENT_INT,Get_Distance);
+    GPTM_SetCallBack(GPTM_WTIMER5,GPTM_TIMERA,GPTM_CAPUTURE_EVENT_INT,&Get_Distance);
     NVIC_SetInterruptState(NVIC_TIMER5A_32_64_IRQ, NVIC_INT_ENABLE);
 
 }
@@ -137,7 +136,7 @@ void ultrasonic_distance(u64* distance_local,void (*ptr_func_local)(void))
     ptr_func_gobal = ptr_func_local ;
     GPTM_SetInterruptState(GPTM_WTIMER5,GPTM_TIMERA,GPTM_CAPUTURE_EVENT_INT,GPTM_INT_ENABLE);
     GPIO_SetPinValue(GPIO_PORTE, GPIO_PIN0, GPIO_PIN_HIGH);
-    Delay_In_Us(10);
+    Delay_In_Us(10UL);
     GPIO_SetPinValue(GPIO_PORTE, GPIO_PIN0, GPIO_PIN_LOW);
 }
 
